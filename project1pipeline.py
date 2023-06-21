@@ -4,7 +4,6 @@ from pandas import DataFrame
 import pandas as pd
 import numpy as np
 import sklearn
-from sklearn.metrics import mean_squared_error
 
 sklearn.set_config(display="diagram")
 sklearn.set_config(transform_output="pandas")
@@ -27,7 +26,7 @@ movie_df
 
 # %%
 
-from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
+from sklearn.model_selection import train_test_split
 
 
 def add_budget_cat_column():
@@ -128,7 +127,6 @@ class ListExpander(BaseEstimator, TransformerMixin):
 
 # %%
 
-from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.compose import ColumnTransformer
 
@@ -164,7 +162,7 @@ feature_prepared
 
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.pipeline import make_pipeline
-from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 
 tree_reg = make_pipeline(preprocessing, DecisionTreeRegressor(random_state=42))
@@ -223,7 +221,6 @@ estimator: Pipeline = grid_search.best_estimator_
 
 x_test, y_test = get_train_and_label(testing_df)
 
-
 test_rmse = mean_squared_error(y_test, estimator.predict(x_test), squared=False)
 train_rmse = mean_squared_error(y_train, estimator.predict(x_train), squared=False)
 print(train_rmse)
@@ -233,11 +230,11 @@ print(test_rmse)
 xx = x_test.copy()
 xx['revenue'] = y_test
 xx['estimated_rev'] = estimator.predict(x_test).astype(int)
-xx['err'] = np.abs((xx['estimated_rev'] - xx['revenue'])/xx['revenue'])
+xx['err'] = np.abs((xx['estimated_rev'] - xx['revenue']) / xx['revenue'])
 xx
-#%%
+# %%
 xx = x_train.copy()
 xx['revenue'] = y_train
 xx['estimated_rev'] = estimator.predict(x_train).astype(int)
-xx['err'] = np.abs((xx['estimated_rev'] - xx['revenue'])/xx['revenue'])
+xx['err'] = np.abs((xx['estimated_rev'] - xx['revenue']) / xx['revenue'])
 xx
