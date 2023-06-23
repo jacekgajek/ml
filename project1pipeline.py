@@ -15,7 +15,6 @@ def load_movie_data():
 
 def prepare_movie_data(data: DataFrame):
     filtered: DataFrame = data.dropna().loc[~(data == 0).any(axis=1)]
-    filtered = filtered['revenue']
     filtered.set_index('index')
     return filtered
 
@@ -129,6 +128,7 @@ class ListExpander(BaseEstimator, TransformerMixin):
 
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import make_pipeline
 
 
 def make_preprocessing():
