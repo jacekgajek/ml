@@ -41,7 +41,7 @@ from sklearn.linear_model import SGDClassifier
 # Stochastic Gradient Descent
 
 y_train_5 = (y_train == '5')
-sgd_classifier = SGDClassifier(random_state=42)
+sgd_classifier = SGDClassifier(random_state=42, n_jobs=-1)
 sgd_classifier.fit(X_train, y_train_5)
 
 sgd_classifier.predict([X[1]])
@@ -50,20 +50,20 @@ sgd_classifier.predict([X[1]])
 from sklearn.model_selection import cross_val_score
 from sklearn.dummy import DummyClassifier
 
-cross_val_score(sgd_classifier, X_train, y_train_5, cv=3, scoring='accuracy')
+cross_val_score(sgd_classifier, X_train, y_train_5, cv=3, scoring='accuracy', n_jobs=-1)
 
 # %%
 dummy_classifier = DummyClassifier()
 dummy_classifier.fit(X_train, y_train_5)
 print(any(dummy_classifier.predict(X_train)))
 
-cross_val_score(dummy_classifier, X_train, y_train_5, cv=3, scoring='accuracy')
+cross_val_score(dummy_classifier, X_train, y_train_5, cv=3, scoring='accuracy', n_jobs=-1)
 del dummy_classifier
 
 # %%
 from sklearn.model_selection import cross_val_predict
 
-y_train_5_pred = cross_val_predict(sgd_classifier, X_train, y_train_5, cv=3)
+y_train_5_pred = cross_val_predict(sgd_classifier, X_train, y_train_5, cv=3, n_jobs=-1)
 y_train_5_pred
 
 # %%
@@ -94,7 +94,7 @@ plt.show()
 # %%
 from sklearn.metrics import precision_recall_curve
 
-y_scores = cross_val_predict(sgd_classifier, X_train, y_train_5, cv=3, method='decision_function')
+y_scores = cross_val_predict(sgd_classifier, X_train, y_train_5, cv=3, method='decision_function', n_jobs=-1)
 precisions, recalls, thresholds = precision_recall_curve(y_train_5, y_scores)
 precisions: np.ndarray
 recalls: np.ndarray
@@ -143,9 +143,9 @@ plt.show()
 
 from sklearn.ensemble import RandomForestClassifier
 
-forest_classifier = RandomForestClassifier(random_state=42)
+forest_classifier = RandomForestClassifier(random_state=42, n_jobs=-1)
 
-y_probas_forest = cross_val_predict(forest_classifier, X_train, y_train_5, cv=3, method='predict_proba')
+y_probas_forest = cross_val_predict(forest_classifier, X_train, y_train_5, cv=3, method='predict_proba', n_jobs=-1)
 #%%
 
 y_scores_forest = y_probas_forest[:, 1]
