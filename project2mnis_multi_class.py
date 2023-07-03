@@ -16,10 +16,10 @@ import numpy as np
 
 sklearn.set_config(display="diagram")
 sklearn.set_config(transform_output="pandas")
-#%%
+# %%
 mnist: Bunch = fetch_openml('mnist_784', as_frame=False)
 
-#%%
+# %%
 X, y = mnist.data, mnist.target
 X_train, X_test, y_train, y_test = X[:60000], X[60000:], y[:60000], y[60000:]
 
@@ -32,13 +32,15 @@ some_digit = X_train[0]
 
 X_train
 
-#%%
+# %%
 image_size = 28
+
 
 def plot_image(pixels: np.ndarray):
     image = pixels.reshape(image_size, image_size)
     plt.imshow(image, cmap="binary")
     plt.axis("off")
+
 
 def plot_images(samples: np.ndarray):
     plt.figure(figsize=(10, 10))
@@ -52,51 +54,36 @@ def plot_images(samples: np.ndarray):
 plot_image(X[2])
 plt.show()
 
-
 # %%
 X_train[0]
+
+
 # %%
-def add_shifted_samples(X_original: np.ndarray) -> np.ndarray:
+def add_shifted_samples(X_original: np.ndarray, y_original: np.ndarray) -> (np.ndarray, np.ndarray):
     bitmaps = X_original.reshape(len(X_original), image_size, image_size)
+
     def random_translation():
         return (np.random.randint(-2, 3), np.random.randint(-2, 3))
-    def random_rotation():
-        return np.pi * (np.random.rand() - 0.5) / 5
 
-    transforms = [ EuclideanTransform(translation=random_translation(), rotation=random_rotation()) for _ in range(5) ]
+    def random_rotation():
+        return np.pi * (np.random.rand() - 0.5) / 6
+
+    transforms = [EuclideanTransform(translation=random_translation(), rotation=random_rotation()) for _ in range(5)]
+
     def doWarp(bitmap: np.ndarray, t) -> np.ndarray:
         # print(f"warping bitmap with ${t}")
         return transform.warp(bitmap, t.inverse)
 
-    parallel = Parallel(n_jobs= 24)
-    tt = np.array(parallel(delayed(doWarp)(bitmap, t) for bitmap in bitmaps for t in transforms ))
-    transformed = np.array([ transform.warp(bitmap, t.inverse) for t in transforms for bitmap in bitmaps])
-    return tt
-    # return np.array(transformed).reshape(len(transformed), image_size * image_size)
+    parallel = Parallel(n_jobs=24)
+    result = np.array(parallel(delayed(doWarp)(bitmap, t) for bitmap in bitmaps for t in transforms))
+    x = result.reshape(len(result), image_size * image_size)
+    y = np.array([ y for y in y_original for _ in enumerate(transforms) ])
+    return (x, y)
 
-X_augmented = add_shifted_samples(X_train[:1])
-# %%
-X_augmented
-# %%
-def fff(x):
-    x / 2
+(X_augmented, y_augmented) = add_shifted_samples(X_train, y_train)
 
-Parallel(n_jobs=2)(delayed(fff)(i ** 2) for i in range(10))
-
-# %%
-plot_images(X_augmented[60000:])
-# %%
-plot_images(X_augmented)
-# %%
-print(X_augmented.shape)
-print(X_train.shape)
-print(y_train.shape)
-# %%
-# plot_image(X_augmented[2])
-X_augmented.shape
 # %%
 np.random.seed(42)
-
 
 noise = np.random.randint(-100, 100, (len(X_augmented), image_size * image_size))
 
@@ -107,25 +94,25 @@ plot_image(X_train_noised[0])
 # %%
 plot_images(X_train_noised)
 
-#%%
+# %%
 scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train_noised.astype('float64'))
-#%%
+X_train_scaled = scaler.fit_transform(X_augmented.astype('float64'))
+# %%
 X_train_scaled
 
-#%%
+# %%
 sgd_clf = SGDClassifier(random_state=42, n_jobs=-1)
-sgd_clf.fit(X_train_scaled, y_train)
-#%%
-score = cross_val_score(sgd_clf, X_train, y_train, cv=3, n_jobs=-1, scoring='accuracy')
+sgd_clf.fit(X_train_scaled, y_augmented)
+# %%
+score = cross_val_score(sgd_clf, X_train_scaled, y_augmented, cv=3, n_jobs=-1, scoring='accuracy')
 score
 
-#%%
+# %%
 y_train_pred = cross_val_predict(sgd_clf, X_train_scaled, y_train, cv=3, n_jobs=-1)
 y_train_pred
-#%%
+# %%
 sample_weight = y_train_pred != y_train
 ConfusionMatrixDisplay.from_predictions(y_train, y_train_pred, sample_weight=sample_weight,
                                         values_format=".0%", cmap="cubehelix", normalize='true')
 
-#%%
+# %%

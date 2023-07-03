@@ -128,7 +128,6 @@ class ListExpander(BaseEstimator, TransformerMixin):
 
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import make_pipeline
 
 
 def make_preprocessing():
