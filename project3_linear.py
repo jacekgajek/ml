@@ -28,7 +28,6 @@ rank = 10
 pipeline = make_pipeline(
     StandardScaler(),
     PolynomialFeatures(degree=rank),
-    # LinearRegression(n_jobs=-1),
     ElasticNet(max_iter=100000, alpha=0.1, l1_ratio=0.5)
 )
 pipeline.fit(X, y.ravel())
