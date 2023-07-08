@@ -4,7 +4,10 @@ from pandas import DataFrame
 import pandas as pd
 import numpy as np
 import sklearn
+from sklearn.pipeline import make_pipeline
 
+
+# %%
 sklearn.set_config(display="diagram")
 sklearn.set_config(transform_output="pandas")
 
@@ -35,7 +38,7 @@ def add_budget_cat_column():
     movie_df['budget_cat'] = pd.cut(movie_df['budget'], bins=bins, labels=labels)
 
 
-def drop_budget_cat_column(dfs: list[DataFrame]):
+def drop_budget_cat_column(dfs):
     for train_set in dfs:
         train_set.drop(columns=['budget_cat'], inplace=True)
 
@@ -51,7 +54,7 @@ training_df, testing_df = train_test_split(movie_df, test_size=0.2, stratify=mov
 drop_budget_cat_column([training_df, testing_df])
 
 
-def get_train_and_label(data: DataFrame) -> tuple[DataFrame, DataFrame]:
+def get_train_and_label(data: DataFrame):
     feature_attributes = ['budget', 'genres', 'runtime', 'vote_average', 'popularity', 'vote_count']
     # feature_attributes = ['budget', 'runtime', 'vote_average', 'popularity', 'vote_count']
     label_attributes = ['revenue']
